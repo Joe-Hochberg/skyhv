@@ -288,18 +288,18 @@
     <div class="sub">Limited access. First come, first served.</div>
 
     <div class="form-card" id="form-card">
-      <form id="access-form">
+      <form id="access-form" action="https://formspree.io/f/xzdlnjpn" method="POST">
         <div class="field">
           <label for="name">Full Name</label>
-          <input id="name" type="text" placeholder="Your name" autocomplete="off">
+          <input id="name" name="name" type="text" placeholder="Your name" autocomplete="off" required>
         </div>
         <div class="field">
           <label for="email">Email Address</label>
-          <input id="email" type="email" placeholder="you@example.com" autocomplete="off">
+          <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="off" required>
         </div>
         <div class="field">
           <label for="how">How did you hear about us?</label>
-          <select id="how" required>
+          <select id="how" name="how_did_you_hear" required>
             <option value="" disabled selected>Select an option</option>
             <option>A dream</option>
             <option>The ticker tape</option>
@@ -339,11 +339,31 @@
     }
     tick();
 
-    // Form: stores nothing, sends nothing. Pure theater.
+    // Form: submits to Formspree via AJAX, then shows the cryptic confirmation.
     document.getElementById('access-form').addEventListener('submit', function (e) {
       e.preventDefault();
-      document.getElementById('access-form').style.display = 'none';
-      document.getElementById('confirm').style.display = 'block';
+      var form = e.target;
+      var btn = form.querySelector('.submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Securing…';
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      }).then(function (res) {
+        if (res.ok) {
+          form.style.display = 'none';
+          document.getElementById('confirm').style.display = 'block';
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Secure My Spot';
+          alert('Something interfered. Try again.');
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        btn.textContent = 'Secure My Spot';
+        alert('Something interfered. Try again.');
+      });
     });
   </script>
 </body>
